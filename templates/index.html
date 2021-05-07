@@ -1,5 +1,25 @@
 [[extend 'layout.html']]
 
 <div class="section">
-   test
+   <h1 class="title" style="text-align: center">Schedule Sync</h1>
+   
+   [[if not user:]]
+   <div class="login_buttons" style="text-align: center">
+      <a class="button is-link" href="[[=URL('auth/register')]]">Sign up</a>
+      <a class="button is-success" href="[[=URL('auth/login')]]">Log in</a>
+   </div>
+
+   [[else:]]
+   <div class="group_buttons" style="text-align: center">
+      <a class="button is-primary" href="[[=URL('create_group')]]">
+         <span class="icon"><i class="fa fa-pencil"></i></span>
+         <span>Create Group</span>
+      </a>
+      <a class="button is-warning" href="[[=URL('join_group')]]">
+         <span class="icon"><i class="fa fa-plus"></i></span>
+         <span>Join Group</span>
+      </a>
+   </div>
+   [[pass]]
+
 </div>

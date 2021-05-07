@@ -27,13 +27,53 @@ Warning: Fixtures MUST be declared with @action.uses({fixtures}) else your app w
 
 from py4web import action, request, abort, redirect, URL
 from yatl.helpers import A
-from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash
+from .common import db, session, T, cache, auth, logger, authenticated, unauthenticated, flash, Field
 from py4web.utils.url_signer import URLSigner
 from .models import get_user_email
+from py4web.utils.form import Form, FormStyleBulma
+from pydal.validators import *
+import random, string
+
 
 url_signer = URLSigner(session)
 
 @action('index')
-@action.uses(db, session, auth.user, 'index.html')
+@action.uses(db, session, auth, 'index.html')
 def index():
-    return dict()
+    user=auth.current_user
+    return dict(user=user)
+        
+
+@action('create_group')
+@action.uses(db, session, auth.user, 'create_group.html')
+def create_group():
+    # Generate a 10-character alphanumeric string
+    # https://stackoverflow.com/questions/2511222/efficiently-generate-a-16-character-alphanumeric-string
+    code = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+
+    form = Form(
+        [Field('group_name', requires=IS_NOT_EMPTY(error_message='Enter a group name'))],
+        csrf_session=session, formstyle=FormStyleBulma, submit_value='Create Group')
+        
+    if form.accepted:
+        group_name = form.vars['group_name']
+        redirect(URL('index'))
+        # Create group, add user to group, and assign user as owner
+
+
+    return dict(form=form)
+
+@action('join_group', method=["GET", "POST"])
+@action.uses(db, session, auth.user, 'join_group.html')
+def join_group():
+    form = Form(
+        [Field('code')], 
+        csrf_session=session, formstyle=FormStyleBulma, submit_value='Join Group')
+
+    if form.accepted:
+        code = form.vars['code']
+        print('accepted:', code)
+        redirect(URL('index'))
+
+    return dict(form=form)
+
