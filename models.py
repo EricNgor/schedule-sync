@@ -31,10 +31,10 @@ db.define_table(
 
 db.define_table(
     'group',
-    Field('group_name'),
     Field('owner_id', 'reference user'),
+    Field('group_name'),
     Field('members', 'list:string', default=[]),
-    Field('join_code')
+    Field('join_code', requires=IS_NOT_EMPTY())
 )
 
 db.user.id.readable = db.user.id.writable = False

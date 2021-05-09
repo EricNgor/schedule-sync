@@ -9,11 +9,8 @@
       <a class="button is-success" href="[[=URL('auth/login')]]">Log in</a>
    </div>
 
-   [[elif groups:]]
-   <p>not implemented</p>
    [[else:]]
    <div class="group_buttons" style="text-align: center">
-      <h2 class="subtitle">You aren't part of any groups yet!</h2>
       <a class="button is-primary" href="[[=URL('create_group')]]">
          <span class="icon"><i class="fa fa-pencil"></i></span>
          <span>Create Group</span>
@@ -23,6 +20,18 @@
          <span>Join Group</span>
       </a>
    </div>
+   <br><br><br>
+   <!-- Later, these tiles will be added automatically upon group creation -->
+   <div class="tile is-ancestor mx-6" id="group_tiles">
+      <div class="tile is-vertical is-4" id="group_col_0">
+         <div class="tile is-parent">
+            <div class="tile is-child notification is-link" onclick="location.href='[[=URL('group', 6)]]';" style="cursor: pointer;">
+               <p class="title">Group name</p>
+            </div>
+         </div>
+      </div>
+   </div>
+
    [[pass]]
 
 </div>
