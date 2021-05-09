@@ -9,8 +9,11 @@
       <a class="button is-success" href="[[=URL('auth/login')]]">Log in</a>
    </div>
 
+   [[elif groups:]]
+   <p>not implemented</p>
    [[else:]]
    <div class="group_buttons" style="text-align: center">
+      <h2 class="subtitle">You aren't part of any groups yet!</h2>
       <a class="button is-primary" href="[[=URL('create_group')]]">
          <span class="icon"><i class="fa fa-pencil"></i></span>
          <span>Create Group</span>
