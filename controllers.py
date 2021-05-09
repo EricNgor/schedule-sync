@@ -37,19 +37,36 @@ import random, string
 
 url_signer = URLSigner(session)
 
-@action('index')
+@action('index', method=["GET"])
 @action.uses(db, session, auth, 'index.html')
 def index():
     user=auth.current_user
+    user_id = user.get('id')
+    if user:
+        if not db(db.user.id==user_id).select():
+            print('adding new unique user')
+            db.user.insert(
+                id=user_id,
+                user_email=user.get('email'),
+                first_name=user.get('first_name'),
+                last_name=user.get('last_name'),
+            )
+
+        # groups = db(db.user.id==user_id).select().first().groups
+        # if groups:
+        #     print('you are in', len(groups), 'groups')
+        #     print('groups:', groups)
+        #     code2 = db(db.group.id==groups[0]).select().first().join_code
+        #     print('code:', code2)
     return dict(user=user)
         
 
-@action('create_group')
+@action('create_group', method=["GET", "POST"])
 @action.uses(db, session, auth.user, 'create_group.html')
 def create_group():
     # Generate a 10-character alphanumeric string
     # https://stackoverflow.com/questions/2511222/efficiently-generate-a-16-character-alphanumeric-string
-    code = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+    # code = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
 
     form = Form(
         [Field('group_name', requires=IS_NOT_EMPTY(error_message='Enter a group name'))],
@@ -57,9 +74,20 @@ def create_group():
         
     if form.accepted:
         group_name = form.vars['group_name']
-        redirect(URL('index'))
+        user_id=auth.current_user.get('id')
         # Create group, add user to group, and assign user as owner
+        db.group.insert(
+            group_name=group_name,
+            owner_id=user_id,
+            members=[user_id],
+            join_code=''.join(random.choices(string.ascii_letters + string.digits, k=10))
+        )
 
+        id = db._adapter.lastrowid('group')
+        user = db.user(user_id)
+        user.update_record(groups=user.groups + [id])
+
+        redirect(URL('group', id))
 
     return dict(form=form)
 
@@ -67,16 +95,44 @@ def create_group():
 @action.uses(db, session, auth.user, 'join_group.html')
 def join_group():
     form = Form(
-        [Field('code')], 
+        [Field('invite_code')], 
         csrf_session=session, formstyle=FormStyleBulma, submit_value='Join Group')
 
     if form.accepted:
-        code = form.vars['code']
-        print('accepted:', code)
-        redirect(URL('index'))
+        group = db(db.group.join_code==form.vars['invite_code']).select().first()
+        if group:
+            # check if user is already in group
+            user_id = auth.current_user.get('id')
+            print('group members:', group.members)
+            if str(user_id) in group.members:
+                form.accepted = False
+                form.errors['invite_code'] = "You're already in this group!"
+                return dict(form=form)
+            # else add to member list and add to user's groups
+            else:
+                print('joining group with id:', group.id)
+                group.update_record(members=group.members + [user_id])
+                user = db.user(user_id)
+                user.update_record(groups=user.groups + [group.id])
+                redirect(URL('group', group.id))
 
+        else:
+            form.accepted = False
+            form.errors['invite_code'] = 'Invalid invite code!'
+            return dict(form=form)
+            
     return dict(form=form)
+    
+@action('group/<group_id:int>')
+@action.uses(db, session, auth.user, 'group.html')
+def group(group_id):
+    assert group_id is not None
+    # TODO:
+    # make sure you can only view this group if you are in it
 
+    group = db.group(group_id)
+    group_name = group.group_name
+    return dict(group_name=group_name)
 
 @action('schedule')
 @action.uses(db, session, auth, 'schedule.html')

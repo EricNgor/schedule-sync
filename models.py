@@ -22,18 +22,19 @@ def get_time():
 
 db.define_table(
     'user',
-    Field('user_email', requires=IS_NOT_EMPTY(error_message='Enter an email')),
-    Field('first_name'),
-    Field('last_name'),
-    Field('schedule')
+    Field('user_email', requires=[IS_NOT_EMPTY(error_message='Enter an email'), IS_EMAIL()]),
+    Field('first_name', requires=IS_NOT_EMPTY(error_message='Enter a first name')),
+    Field('last_name', requires=IS_NOT_EMPTY(error_message='Enter a last name')),
+    Field('schedule'),
+    Field('groups', 'list:integer', default=[])
 )
 
 db.define_table(
     'group',
+    Field('owner_id', 'reference user'),
     Field('group_name'),
-    Field('owner_id'),
-    Field('members'),
-    Field('join_code')
+    Field('members', 'list:string', default=[]),
+    Field('join_code', requires=IS_NOT_EMPTY())
 )
 
 db.user.id.readable = db.user.id.writable = False
