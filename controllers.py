@@ -77,3 +77,12 @@ def join_group():
 
     return dict(form=form)
 
+
+@action('schedule')
+@action.uses(db, session, auth, 'schedule.html')
+def profile():
+    user = auth.current_user
+    first = user.get("first_name")
+    last = user.get("last_name")
+    email = user.get("email")
+    return dict( first = first, last = last, email= email)
