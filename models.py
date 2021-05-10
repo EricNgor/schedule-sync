@@ -26,20 +26,26 @@ db.define_table(
     Field('first_name', requires=IS_NOT_EMPTY(error_message='Enter a first name')),
     Field('last_name', requires=IS_NOT_EMPTY(error_message='Enter a last name')),
     Field('schedule'),
-    Field('groups', 'list:integer', default=[])
 )
 
 db.define_table(
     'group',
     Field('owner_id', 'reference user'),
     Field('group_name'),
-    Field('members', 'list:string', default=[]),
     Field('join_code', requires=IS_NOT_EMPTY())
+)
+
+db.define_table(
+    'group_member',
+    Field('member_id', 'reference user'),
+    Field('group_id', 'reference group')
 )
 
 db.user.id.readable = db.user.id.writable = False
 db.user.user_email.readable = db.user.user_email.writable = False
 
 db.group.id.readable = db.group.id.writable = False
+
+db.group_member.id.readable = db.group_member.id.writable = False
 
 db.commit()

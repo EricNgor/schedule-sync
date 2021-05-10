@@ -52,12 +52,11 @@ def index():
                 last_name=user.get('last_name'),
             )
 
-        # groups = db(db.user.id==user_id).select().first().groups
-        # if groups:
-        #     print('you are in', len(groups), 'groups')
-        #     print('groups:', groups)
-        #     code2 = db(db.group.id==groups[0]).select().first().join_code
-        #     print('code:', code2)
+        rows = db(db.group_member.member_id==user_id).select()
+        groups = []
+        for row in rows:
+            groups.append(row.group_id)
+        print('your groups:', groups)
     return dict(user=user)
         
 
@@ -79,15 +78,18 @@ def create_group():
         db.group.insert(
             group_name=group_name,
             owner_id=user_id,
-            members=[user_id],
+            # members=[user_id],
             join_code=''.join(random.choices(string.ascii_letters + string.digits, k=10))
         )
+        group_id = db._adapter.lastrowid('group')
+        print('id:', group_id)
 
-        id = db._adapter.lastrowid('group')
-        user = db.user(user_id)
-        user.update_record(groups=user.groups + [id])
+        db.group_member.insert(
+            member_id=user_id,
+            group_id=group_id
+        )
 
-        redirect(URL('group', id))
+        redirect(URL('group', group_id))
 
     return dict(form=form)
 
@@ -103,17 +105,22 @@ def join_group():
         if group:
             # check if user is already in group
             user_id = auth.current_user.get('id')
-            print('group members:', group.members)
-            if str(user_id) in group.members:
+            # print('group members:', group.members)
+            if db(
+                (db.group_member.member_id==user_id) &
+                (db.group_member.group_id==group.id)
+            ).select():
+
                 form.accepted = False
                 form.errors['invite_code'] = "You're already in this group!"
                 return dict(form=form)
             # else add to member list and add to user's groups
             else:
                 print('joining group with id:', group.id)
-                group.update_record(members=group.members + [user_id])
-                user = db.user(user_id)
-                user.update_record(groups=user.groups + [group.id])
+                db.group_member.insert(
+                    member_id=user_id,
+                    group_id=group.id
+                )
                 redirect(URL('group', group.id))
 
         else:
