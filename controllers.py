@@ -78,7 +78,6 @@ def create_group():
         db.group.insert(
             group_name=group_name,
             owner_id=user_id,
-            # members=[user_id],
             join_code=''.join(random.choices(string.ascii_letters + string.digits, k=10))
         )
         group_id = db._adapter.lastrowid('group')
@@ -141,11 +140,21 @@ def group(group_id):
     group_name = group.group_name
     return dict(group_name=group_name)
 
-@action('schedule')
+@action('schedule', method=["GET", "POST"])
 @action.uses(db, session, auth, 'schedule.html')
 def profile():
     user = auth.current_user
     first = user.get("first_name")
     last = user.get("last_name")
     email = user.get("email")
-    return dict( first = first, last = last, email= email)
+
+    form = Form(
+        [Field('schedule', requires=IS_NOT_EMPTY(error_message="Enter your schedule"))], 
+        csrf_session=session, formstyle=FormStyleBulma, submit_value='Add Schedule')
+
+    if form.accepted:
+        schedule = form.vars['schedule']
+        db(db.user.id==user.get('id')).select().first().update_record(schedule=schedule)
+
+
+    return dict(first = first, last = last, email = email, form=form)
