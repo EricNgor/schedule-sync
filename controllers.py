@@ -105,7 +105,6 @@ def join_group():
         if group:
             # check if user is already in group
             user_id = auth.current_user.get('id')
-            # print('group members:', group.members)
             if db(
                 (db.group_member.member_id==user_id) &
                 (db.group_member.group_id==group.id)
@@ -163,7 +162,6 @@ def profile():
 @action('load_groups')
 @action.uses(url_signer.verify(), db)
 def load_groups():
-    print('loading groups')
     groups = db(
         (db.group.id==db.group_member.group_id) &
         (db.group_member.member_id==auth.current_user.get('id'))

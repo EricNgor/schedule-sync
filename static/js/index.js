@@ -21,7 +21,6 @@ let init = (app) => {
     });
 
     app.init = () => {
-        console.log('initing');
         axios.get(load_groups_url).then(function(res) {
             for (let group of res.data.groups) {
                 app.vue.groups.push(group.group)
