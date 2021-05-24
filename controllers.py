@@ -34,17 +34,15 @@ from py4web.utils.form import Form, FormStyleBulma
 from pydal.validators import *
 import random, string
 
-
 url_signer = URLSigner(session)
 
-@action('index', method=["GET"])
+@action('index')
 @action.uses(db, session, auth, 'index.html')
 def index():
     user=auth.current_user
     user_id = user.get('id')
     if user:
         if not db(db.user.id==user_id).select():
-            print('adding new unique user')
             db.user.insert(
                 id=user_id,
                 user_email=user.get('email'),
@@ -56,8 +54,11 @@ def index():
         groups = []
         for row in rows:
             groups.append(row.group_id)
-        print('your groups:', groups)
-    return dict(user=user)
+
+    return dict(
+        user=user,
+        load_groups_url = URL('load_groups', signer=url_signer)
+    )
         
 
 @action('create_group', method=["GET", "POST"])
@@ -158,3 +159,17 @@ def profile():
 
 
     return dict(first = first, last = last, email = email, form=form)
+
+@action('load_groups')
+@action.uses(url_signer.verify(), db)
+def load_groups():
+    print('loading groups')
+    groups = db(
+        (db.group.id==db.group_member.group_id) &
+        (db.group_member.member_id==auth.current_user.get('id'))
+    ).select().as_list()
+
+    print('loaded groups:')
+    for row in groups:
+        print(row)
+    return dict(groups=groups)

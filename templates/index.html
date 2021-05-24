@@ -1,6 +1,12 @@
 [[extend 'layout.html']]
 
-<div class="section">
+<style>
+   [v-cloak] {
+      display: none;
+   }
+</style>
+
+<div class="section" id="vue-target" v-cloak>
    <h1 class="title" style="text-align: center">Schedule Sync</h1>
    
    [[if not user:]]
@@ -42,3 +48,11 @@
    [[pass]]
 
 </div>
+
+[[block page_scripts]]
+<script>
+   let load_groups_url = "[[=XML(load_groups_url)]]";
+   console.log('attached load groups');
+</script>
+<script src="js/index.js"></script>
+[[end]]
