@@ -57,7 +57,7 @@ def index():
 
     return dict(
         user=user,
-        load_groups_url = URL('load_groups', signer=url_signer)
+        load_groups_url = URL('load_groups', signer=url_signer),
     )
         
 
@@ -157,7 +157,10 @@ def profile():
         db(db.user.id==user.get('id')).select().first().update_record(schedule=schedule)
 
 
-    return dict(first = first, last = last, email = email, form=form)
+    return dict(
+        first=first, last=last, email=email, form=form,
+        load_schedule_url = URL('load_schedule', signer=url_signer)
+    )
 
 @action('load_groups')
 @action.uses(url_signer.verify(), db)
@@ -171,3 +174,10 @@ def load_groups():
     for row in groups:
         print(row)
     return dict(groups=groups)
+
+@action('load_schedule')
+@action.uses(url_signer.verify(), db)
+def load_schedule():
+    schedule = db(db.user.id==auth.current_user.get('id')).select().first().schedule
+    print('loaded schedule:', schedule)
+    return dict(schedule=schedule)
