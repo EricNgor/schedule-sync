@@ -26,7 +26,6 @@ let init = (app) => {
                 app.vue.groups.push(group.group)
             }
         }).catch((err) => {console.log('Error loading groups:', err)})
-        console.log('groups:', app.vue.groups);
     };
 
     app.init();

@@ -4,6 +4,13 @@
     [v-cloak] {
         display: none;
     }
+    #background {
+        color: #ff0;
+    }
+    #schedule {
+        margin: 0 auto;
+        outline: 2px solid Black;
+    }
     .timeslot {
         font-size: 15px;
     }
@@ -16,6 +23,10 @@
     #save_button {
         position: relative;
         float: right;
+    }
+    #top_button {
+        position: absolute;
+        left: 50%;
     }
 </style>
 
@@ -30,26 +41,28 @@
 
     <!-- [[=form]] -->
 
-    <button class="button is-danger" @click="schedule_clear">
-        <span class="icon"><i class="fa fa-trash"></i></span>
-        <span>Clear Schedule</span>
-    </button>
-    <button class="button is-success" @click="schedule_save" id="save_button">
-        <span class="icon"><i class="fa fa-save"></i></span>
-        <span>Save Schedule</span>
-    </button>
+    
+        <button class="button is-danger" @click="schedule_clear">
+            <span class="icon"><i class="fa fa-trash"></i></span>
+            <span>Clear Schedule</span>
+        </button>
+        <button class="button is-success" @click="schedule_save" id="save_button">
+            <span class="icon"><i class="fa fa-save"></i></span>
+            <span>Save Schedule</span>
+        </button>
 
-    <div class="section">
-        <table class="table is-striped is-fullwidth has-text-centered is-narrow is-bordered" id="schedule">
-            <thead>
-                <th style="width: 50px; font-size: 15px">
+        <br><br>
+
+        <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
+            <thead style="background: LightGrey">
+                <th style="width: 100px; font-size: 15px;">
                     <label class="checkbox">
                         <input type="checkbox" v-model="extended" @change="toggle_extended" />
                         Extended Schedule
                     </label>
                 </th>
             [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
-                <th style="width: 100px">[[=day]]</th>
+                <th style="width: 150px">[[=day]]</th>
             [[pass]]
             </thead>
 
@@ -83,21 +96,29 @@
 
         </table>
 
+        <br>
+
         <button class="button is-danger" @click="schedule_clear">
             <span class="icon"><i class="fa fa-trash"></i></span>
             <span>Clear Schedule</span>
         </button>
+        <a class="button has-text-centered" id="top_button" v-if="extended" 
+            onClick="window.scroll({top: 0, left: 0, behavior: 'smooth'})">
+            <span class="icon"><i class="fa fa-arrow-up"></i></span>
+            <span>To Top</span>
+        </a>
         <button class="button is-success" @click="schedule_save" id="save_button">
             <span class="icon"><i class="fa fa-save"></i></span>
             <span>Save Schedule</span>
         </button>
 
-    </div>
 </div>
 
 [[block page_scripts]]
 <script>
     let load_schedule_url = "[[=XML(load_schedule_url)]]";
+    let clear_schedule_url = "[[=XML(clear_schedule_url)]]";
+    let save_schedule_url = "[[=XML(save_schedule_url)]]";
 </script>
 <script src="js/schedule.js"></script>
 [[end]]

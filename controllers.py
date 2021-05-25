@@ -33,6 +33,7 @@ from .models import get_user_email
 from py4web.utils.form import Form, FormStyleBulma
 from pydal.validators import *
 import random, string
+import json
 
 url_signer = URLSigner(session)
 
@@ -40,8 +41,8 @@ url_signer = URLSigner(session)
 @action.uses(db, session, auth, 'index.html')
 def index():
     user=auth.current_user
-    user_id = user.get('id')
     if user:
+        user_id = user.get('id')
         if not db(db.user.id==user_id).select():
             db.user.insert(
                 id=user_id,
@@ -82,7 +83,6 @@ def create_group():
             join_code=''.join(random.choices(string.ascii_letters + string.digits, k=10))
         )
         group_id = db._adapter.lastrowid('group')
-        print('id:', group_id)
 
         db.group_member.insert(
             member_id=user_id,
@@ -115,7 +115,6 @@ def join_group():
                 return dict(form=form)
             # else add to member list and add to user's groups
             else:
-                print('joining group with id:', group.id)
                 db.group_member.insert(
                     member_id=user_id,
                     group_id=group.id
@@ -141,7 +140,7 @@ def group(group_id):
     return dict(group_name=group_name)
 
 @action('schedule', method=["GET", "POST"])
-@action.uses(db, session, auth, 'schedule.html')
+@action.uses(db, session, auth.user, 'schedule.html')
 def profile():
     user = auth.current_user
     first = user.get("first_name")
@@ -156,10 +155,11 @@ def profile():
         schedule = form.vars['schedule']
         db(db.user.id==user.get('id')).select().first().update_record(schedule=schedule)
 
-
     return dict(
         first=first, last=last, email=email, form=form,
-        load_schedule_url = URL('load_schedule', signer=url_signer)
+        load_schedule_url = URL('load_schedule', signer=url_signer),
+        clear_schedule_url = URL('clear_schedule', signer=url_signer),
+        save_schedule_url = URL('save_schedule', signer=url_signer),
     )
 
 @action('load_groups')
@@ -170,14 +170,24 @@ def load_groups():
         (db.group_member.member_id==auth.current_user.get('id'))
     ).select().as_list()
 
-    print('loaded groups:')
-    for row in groups:
-        print(row)
     return dict(groups=groups)
 
 @action('load_schedule')
 @action.uses(url_signer.verify(), db)
 def load_schedule():
     schedule = db(db.user.id==auth.current_user.get('id')).select().first().schedule
-    print('loaded schedule:', schedule)
     return dict(schedule=schedule)
+
+@action('clear_schedule')
+@action.uses(url_signer.verify(), db)
+def clear_schedule():
+    id = auth.current_user.get('id')
+    db(db.user.id==id).update(schedule='')
+
+@action('save_schedule', method="POST")
+@action.uses(url_signer.verify(), db)
+def save_schedule():
+    schedule = str(request.json.get('schedule'))
+    id = auth.current_user.get('id')
+    db(db.user.id==id).update(schedule=schedule)
+    return dict(id=id)
