@@ -1,6 +1,8 @@
 let app = {};
 let init = (app) => {
     app.data = {
+        group_name: "",
+        join_code: "",
         groups: []
     };
 
@@ -10,7 +12,24 @@ let init = (app) => {
         return a;
     };
 
+    app.load_groups = function () {
+        axios.post(load_groups_url,
+            {
+                group_name: app.vue.group_name,
+                join_code: app.vue.join_code,
+            }).then(function (response) {
+        app.vue.groups.push({
+            id: response.data.id,
+            group_name: app.vue.group_name,
+            join_code: app.vue.join_code,
+            });
+        app.enumerate(app.vue.groups);
+        });
+    };
+
+
     app.methods = {
+        load_groups: app.load_groups
 
     }
 

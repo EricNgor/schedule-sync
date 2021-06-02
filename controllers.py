@@ -54,10 +54,13 @@ def index():
         groups = []
         for row in rows:
             groups.append(row.group_id)
+        
+
+
 
     return dict(
         user=user,
-        load_groups_url = URL('load_groups', signer=url_signer)
+        load_groups_url = URL('load_groups', signer=url_signer),
     )
         
 
@@ -89,7 +92,7 @@ def create_group():
             group_id=group_id
         )
 
-        redirect(URL('group', group_id))
+        redirect(URL('index'))
 
     return dict(form=form)
 
@@ -170,4 +173,6 @@ def load_groups():
     print('loaded groups:')
     for row in groups:
         print(row)
-    return dict(groups=groups)
+
+   
+    return dict(groups=groups, )
