@@ -1,15 +1,36 @@
 [[extend 'layout.html']]
 
 <style>
+    [v-cloak] {
+        display: none;
+    }
+    #background {
+        color: #ff0;
+    }
+    #schedule {
+        margin: 0 auto;
+        outline: 2px solid Black;
+    }
     .timeslot {
         font-size: 15px;
     }
     .row {
         height: 30px;
     }
+    .schedule_cell {
+        opacity: 75%;
+    }
+    #save_button {
+        position: relative;
+        float: right;
+    }
+    #top_button {
+        position: absolute;
+        left: 50%;
+    }
 </style>
 
-<div class="section">
+<div class="section" id="vue-target" v-cloak>
     <a class="button" href="[[=URL('index')]]">
         <span class="icon"><i class="fa fa-arrow-left"></i></span>
         <span>Back</span>
@@ -20,31 +41,54 @@
 
     <!-- [[=form]] -->
 
-    <div class="section">
-        <table class="table is-striped is-fullwidth  has-text-centered is-hoverable is-narrow is-bordered" id="schedule">
-            <thead>
-                <th style="width: 50px; font-size: 15px">
+    
+        <button class="button is-danger" @click="schedule_clear">
+            <span class="icon"><i class="fa fa-trash"></i></span>
+            <span>Clear Schedule</span>
+        </button>
+        <button class="button is-success" @click="schedule_save" id="save_button">
+            <span class="icon"><i class="fa fa-save"></i></span>
+            <span>Save Schedule</span>
+        </button>
+
+        <br><br>
+
+        <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
+            <thead style="background: LightGrey">
+                <th style="width: 100px; font-size: 15px;">
                     <label class="checkbox">
                         <input type="checkbox" v-model="extended" @change="toggle_extended" />
                         Extended Schedule
                     </label>
                 </th>
             [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
-                <th style="width: 100px">[[=day]]</th>
+                <th style="width: 150px">[[=day]]</th>
             [[pass]]
             </thead>
 
             <tbody v-for="i in timeslots">
-                <tr class="row">
-                    <td class="timeslot">{{((i<=12&&i!=0) ? i : Math.abs(i-12)) + (i<=12 ? ' AM' : ' PM')}}</td>
+                <tr v-if="i%2==0" class="row">
+                    <td class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
                     [[for j in range(7):]]
-                        <td></td>
+                        <td @mouseenter="schedule_enter(i, ([[=j]]), false)"
+                        @mousedown="schedule_enter(i, ([[=j]]), true)"
+                        :class="{
+                            'is-primary': cells[i][([[=j]])],
+                            'is-none': !cells[i][([[=j]])],
+                        }"
+                        class="schedule_cell"></td>
                     [[pass]]
                 </tr>
-                <tr class="row">
+                <tr v-if="i%2==1" class="row">
                     <td></td>
                     [[for j in range(7):]]
-                        <td></td>
+                        <td @mouseenter="schedule_enter(i, ([[=j]]), false)"
+                        @mousedown="schedule_enter(i, ([[=j]]), true)"
+                        :class="{
+                            'is-primary': cells[i][([[=j]])],
+                            'is-none': !cells[i][([[=j]])],
+                        }"
+                        class="schedule_cell"></td>
                     [[pass]]
                 </tr> 
                     
@@ -52,9 +96,29 @@
 
         </table>
 
-    </div>
+        <br>
+
+        <button class="button is-danger" @click="schedule_clear">
+            <span class="icon"><i class="fa fa-trash"></i></span>
+            <span>Clear Schedule</span>
+        </button>
+        <a class="button has-text-centered" id="top_button" v-if="extended" 
+            onClick="window.scroll({top: 0, left: 0, behavior: 'smooth'})">
+            <span class="icon"><i class="fa fa-arrow-up"></i></span>
+            <span>To Top</span>
+        </a>
+        <button class="button is-success" @click="schedule_save" id="save_button">
+            <span class="icon"><i class="fa fa-save"></i></span>
+            <span>Save Schedule</span>
+        </button>
+
 </div>
 
 [[block page_scripts]]
+<script>
+    let load_schedule_url = "[[=XML(load_schedule_url)]]";
+    let clear_schedule_url = "[[=XML(clear_schedule_url)]]";
+    let save_schedule_url = "[[=XML(save_schedule_url)]]";
+</script>
 <script src="js/schedule.js"></script>
 [[end]]
