@@ -55,9 +55,6 @@ def index():
         for row in rows:
             groups.append(row.group_id)
         
-
-
-
     return dict(
         user=user,
         load_groups_url = URL('load_groups', signer=url_signer),
