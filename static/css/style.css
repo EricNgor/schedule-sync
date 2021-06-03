@@ -1,0 +1,27 @@
+[v-cloak] {
+    display: none;
+}
+#background {
+    color: #ff0;
+}
+#schedule {
+    margin: 0 auto;
+    outline: 2px solid Black;
+}
+.timeslot {
+    font-size: 15px;
+}
+.row {
+    height: 30px;
+}
+.schedule_cell {
+    opacity: 75%;
+}
+#save_button {
+    position: relative;
+    float: right;
+}
+#top_button {
+    position: absolute;
+    left: 50%;
+}

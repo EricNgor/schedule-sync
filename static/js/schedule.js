@@ -2,7 +2,6 @@ let app = {};
 
 let init = app => {
     app.data = {
-        status: false,
         // 0: Left click; 2: Right Click
         mousedown: -1,
         extended: false,
@@ -64,7 +63,7 @@ let init = app => {
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const ROW_CNT = 48;
 
-        let json = {};
+        // Filter out blank cells
         let nonsparse = [];
         for (col=0; col<days.length; ++col) {
             nonsparse.push([]);
@@ -74,7 +73,9 @@ let init = app => {
                 }
             }
         }
-
+        
+        // Fill json with data
+        let json = {};
         for (day=0; day<days.length; ++day) {
             if (nonsparse[day].length > 0) {
                 json[days[day]] = [];
@@ -107,22 +108,22 @@ let init = app => {
     });
 
     app.init = () => {
+        // Prevent highlighting when dragging in table
         addEventListener("selectstart", e => {
             const el = e.path[1].localName;
             if (el=='th' || el=='td' || el=="tr" || el=="label") {
                 e.preventDefault();
             }
         });
+
         addEventListener("mousedown", e => {
             app.vue.mousedown = e.button;
         });
-
         addEventListener("mouseup", e => {
             app.vue.mousedown = -1;
             app.vue.adding = false;
             app.vue.deleting = false;
         });
-
 
         // range(8, 21); loads times on left
         app.vue.timeslots = ([...Array(28).keys()].map(i=>i+16));

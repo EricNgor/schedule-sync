@@ -1,10 +1,63 @@
 [[extend 'layout.html']]
 
-<div class="section">
+<div class="section" id="vue-target" v-cloak>
     <a class="button" href="[[=URL('index')]]">
         <span class="icon"><i class="fa fa-home"></i></span>
         <span>Home</span>
     </a>
-    <p class="subtitle is-centered">Main group page; not yet implemented</p>
-    <p>Group name:</p>
+    <h1 class="title has-text-centered">[[=group_name]]</h1>
+
+    <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
+        <thead style="background: LightGrey">
+            <th style="width: 100px; font-size: 15px;">
+                <label class="checkbox">
+                    <input type="checkbox" v-model="extended" @change="toggle_extended" />
+                    Extended Schedule
+                </label>
+            </th>
+        [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
+            <th style="width: 150px">[[=day]]</th>
+        [[pass]]
+        </thead>
+
+        <tbody v-for="i in timeslots">
+            <tr v-if="i%2==0" class="row">
+                <td class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
+                [[for j in range(7):]]
+                    <td :class="{
+                        'is-primary': cells[i][([[=j]])].length>0,
+                        'is-none': cells[i][([[=j]])].length==0,
+                    }"
+                    class="schedule_cell"></td>
+                [[pass]]
+            </tr>
+            <tr v-if="i%2==1" class="row">
+                <td></td>
+                [[for j in range(7):]]
+                    <td :class="{
+                        'is-primary': cells[i][([[=j]])].length>0,
+                        'is-none': cells[i][([[=j]])].length==0,
+                    }"
+                    class="schedule_cell"></td>
+                [[pass]]
+            </tr> 
+                
+        </tbody>
+
+    </table>
+
+    <br>
+
+    <a class="button has-text-centered" id="top_button" v-if="extended" 
+        onClick="window.scroll({top: 0, left: 0, behavior: 'smooth'})">
+        <span class="icon"><i class="fa fa-arrow-up"></i></span>
+        <span>To Top</span>
+    </a>
 </div>
+
+[[block page_scripts]]
+<script>
+    let load_group_url = "[[=XML(URL('load_group', 17, signer=url_signer))]]";
+</script>
+<script src="js/group.js"></script>
+[[end]]

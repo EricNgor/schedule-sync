@@ -1,35 +1,5 @@
 [[extend 'layout.html']]
 
-<style>
-    [v-cloak] {
-        display: none;
-    }
-    #background {
-        color: #ff0;
-    }
-    #schedule {
-        margin: 0 auto;
-        outline: 2px solid Black;
-    }
-    .timeslot {
-        font-size: 15px;
-    }
-    .row {
-        height: 30px;
-    }
-    .schedule_cell {
-        opacity: 75%;
-    }
-    #save_button {
-        position: relative;
-        float: right;
-    }
-    #top_button {
-        position: absolute;
-        left: 50%;
-    }
-</style>
-
 <div class="section" id="vue-target" v-cloak>
     <a class="button" href="[[=URL('index')]]">
         <span class="icon"><i class="fa fa-arrow-left"></i></span>
@@ -39,9 +9,6 @@
     <h1 class="title has-text-centered">[[=first]] [[=last]]'s Schedule</h1>
     <h6 class="title is-6 has-text-centered">[[=email]]</h6>
 
-    <!-- [[=form]] -->
-
-    
         <button class="button is-danger" @click="schedule_clear">
             <span class="icon"><i class="fa fa-trash"></i></span>
             <span>Clear Schedule</span>

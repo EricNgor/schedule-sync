@@ -128,17 +128,6 @@ def join_group():
             
     return dict(form=form)
     
-@action('group/<group_id:int>')
-@action.uses(db, session, auth.user, 'group.html')
-def group(group_id):
-    assert group_id is not None
-    # TODO:
-    # make sure you can only view this group if you are in it
-
-    group = db.group(group_id)
-    group_name = group.group_name
-    return dict(group_name=group_name)
-
 @action('schedule', method=["GET", "POST"])
 @action.uses(db, session, auth.user, 'schedule.html')
 def profile():
@@ -147,16 +136,8 @@ def profile():
     last = user.get("last_name")
     email = user.get("email")
 
-    form = Form(
-        [Field('schedule', requires=IS_NOT_EMPTY(error_message="Enter your schedule"))], 
-        csrf_session=session, formstyle=FormStyleBulma, submit_value='Add Schedule')
-
-    if form.accepted:
-        schedule = form.vars['schedule']
-        db(db.user.id==user.get('id')).select().first().update_record(schedule=schedule)
-
     return dict(
-        first=first, last=last, email=email, form=form,
+        first=first, last=last, email=email,
         load_schedule_url = URL('load_schedule', signer=url_signer),
         clear_schedule_url = URL('clear_schedule', signer=url_signer),
         save_schedule_url = URL('save_schedule', signer=url_signer),
@@ -191,3 +172,32 @@ def save_schedule():
     id = auth.current_user.get('id')
     db(db.user.id==id).update(schedule=schedule)
     return dict(id=id)
+
+@action('group/<group_id:int>')
+@action.uses(db, session, auth.user, 'group.html')
+def group(group_id):
+    assert group_id is not None
+    # TODO:
+    # make sure you can only view this group if you are in it
+
+    group = db.group(group_id)
+    group_name = group.group_name
+    return dict(
+        group_name=group_name,
+        url_signer=url_signer,
+        # load_group_url = URL('load_group/<group_id:int>', signer=url_signer)
+    )
+
+@action('load_group/<group_id:int>')
+@action.uses(url_signer.verify(), db)
+def load_group(group_id):
+    # Return information in this group necessary to display common times
+    # print('group id:', group_id)
+    # user_id = auth.current_user.get('id')
+    member_schedules = db(
+        (db.group.id==group_id) &
+        (db.group_member.member_id==db.user.id) &
+        (db.group_member.group_id==db.group.id)
+    ).select(db.user.id, db.user.first_name, db.user.last_name, db.user.schedule)
+    # print('[load_group]:', member_schedules)
+    return dict(group_id=group_id, member_schedules=member_schedules.response)
