@@ -6,45 +6,50 @@
         <span>Home</span>
     </a>
     <h1 class="title has-text-centered">[[=group_name]]</h1>
-
-    <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
-        <thead style="background: LightGrey">
-            <th style="width: 100px; font-size: 15px;">
-                <label class="checkbox">
-                    <input type="checkbox" v-model="extended" @change="toggle_extended" />
-                    Extended Schedule
-                </label>
-            </th>
-        [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
-            <th style="width: 150px">[[=day]]</th>
-        [[pass]]
-        </thead>
-
-        <tbody v-for="i in timeslots">
-            <tr v-if="i%2==0" class="row">
-                <td class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
-                [[for j in range(7):]]
-                    <td :class="{
-                        'is-primary': cells[i][([[=j]])].length>0,
-                        'is-none': cells[i][([[=j]])].length==0,
-                    }"
-                    class="schedule_cell"></td>
+    <br>
+    <div class="columns is-mobile is-centered">
+        <div class="column is-one-fifth has-text-centered">
+            <h1 class="title"><u>Members</u></h1>
+            <div v-for="m in members">
+                <!-- Maybe implement clicking on names to visit their profile -->
+                <h2 class="subtitle has-text-center">
+                    {{m.first_name}} {{m.last_name}}
+                    <span @change="toggle_member(m)" class="checkbox" style="float: right">
+                        <input type="checkbox" checked />
+                    </span>
+                </h2>
+                <br>
+            </div>
+        </div>
+        <div class="column">
+            <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
+                <thead style="background: LightGrey">
+                    <th style="width: 100px; font-size: 15px;">
+                        <label class="checkbox">
+                            <input type="checkbox" v-model="extended" @change="toggle_extended" />
+                            Extended Schedule
+                        </label>
+                    </th>
+                [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
+                    <th style="width: 150px">[[=day]]</th>
                 [[pass]]
-            </tr>
-            <tr v-if="i%2==1" class="row">
-                <td></td>
-                [[for j in range(7):]]
-                    <td :class="{
-                        'is-primary': cells[i][([[=j]])].length>0,
-                        'is-none': cells[i][([[=j]])].length==0,
-                    }"
-                    class="schedule_cell"></td>
-                [[pass]]
-            </tr> 
-                
-        </tbody>
+                </thead>
+        
+                <tbody v-for="i in timeslots">
+                    <tr class="row">
+                        <td v-if="i%2==0" class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
+                        <td v-else></td>
+                        [[for j in range(7):]]
+                            <td :class="count_overlap(i, [[=j]])" class="schedule_cell"></td>
+                        [[pass]]
+                    </tr> 
+                </tbody>
+            </table>
+        </div>
+        <div class="column is-one-fifth">
 
-    </table>
+        </div>
+    </div>
 
     <br>
 
@@ -57,7 +62,7 @@
 
 [[block page_scripts]]
 <script>
-    let load_group_url = "[[=XML(URL('load_group', 17, signer=url_signer))]]";
+    let load_group_url = "[[=XML(URL('load_group', 15, signer=url_signer))]]";
 </script>
 <script src="js/group.js"></script>
 [[end]]

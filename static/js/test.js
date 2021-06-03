@@ -1,3 +1,3 @@
-let cells = [];
-cells += 5;
-console.log(cells);
+let x = [1,2,3];
+let y = x.findAll(e=>e>=2);
+console.log(y);

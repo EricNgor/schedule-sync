@@ -5,7 +5,9 @@ let init = app => {
         id: -1,
         extended: false,
         timeslots: [],
+        // {member_id, schedule: {day: [time]}}
         schedules: [],
+        // {id, first_name, last_name, included}
         members: [],
         cells: [],
     };
@@ -19,10 +21,57 @@ let init = app => {
                             ([...Array(28).keys()].map(i=>i+16));
     }
 
+    /**
+     * Count the number of group members busy at this time, then return
+     * a style accordingly
+     * is-none -- 0% -- is-danger -- 50% -- is-warning -- 100% -- is-success
+     */
+    app.count_overlap = function(row, col) {
+        const cnt_members = app.vue.members.filter(e => e.included).length;
+        const cnt_overlap = app.vue.cells[row][col].length;
+        if (cnt_overlap == 0) return 'is-none';
+
+        const overlap_perc = cnt_overlap / cnt_members;
+
+        if (overlap_perc == 1) return 'is-success';
+        if (overlap_perc >= 0.5) return 'is-warning';
+        return 'is-danger';
+    }
+
+    /**
+     * Toggle a member's inclusion into the current group view
+     */
+    app.toggle_member = function(member) {
+        const ROW_CNT = 48;
+        if (member.included) {
+            for (let col=0; col < 7; ++col) {
+                for (let row=0; row < ROW_CNT; ++row) {
+                    if (app.vue.cells[row][col].length==0) continue;
+                    Vue.set(
+                        app.vue.cells[row], 
+                        col, 
+                        app.vue.cells[row][col].filter(e=>e != member.id)
+                    )
+                }
+            }
+            member.included = false;
+        } else {
+            let schedule = app.vue.schedules.find(e=>e.member_id==member.id).schedule;
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            for (let [day, times] of Object.entries(schedule)) {
+                let day_idx = days.findIndex(d => d==day);
+                for (let time of times) {
+                    Vue.set(app.vue.cells[time], day_idx, [...app.vue.cells[time][day_idx], member.id]);
+                }
+            }
+            member.included = true;
+        }
+    }
 
     app.methods = {
         toggle_extended: app.toggle_extended,
-
+        count_overlap: app.count_overlap,
+        toggle_member: app.toggle_member
     };
 
     app.vue = new Vue({
@@ -45,7 +94,8 @@ let init = app => {
                 app.vue.members.push({
                     id: member[0], 
                     first_name: member[1], 
-                    last_name: member[2]
+                    last_name: member[2],
+                    included: true
                 });
 
                 let schedule = member[3];
@@ -55,7 +105,7 @@ let init = app => {
                     for (let [day, times] of Object.entries(schedule)) {
                         let day_idx = days.findIndex(d => d==day);
                         for (let time of times) {
-                            Vue.set(app.vue.cells[time], day_idx, app.vue.cells[time][day_idx] + member[0])
+                            Vue.set(app.vue.cells[time], day_idx, [...app.vue.cells[time][day_idx], member[0]]);
                         }
                     }
 

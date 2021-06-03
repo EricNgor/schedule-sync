@@ -192,12 +192,9 @@ def group(group_id):
 @action.uses(url_signer.verify(), db)
 def load_group(group_id):
     # Return information in this group necessary to display common times
-    # print('group id:', group_id)
-    # user_id = auth.current_user.get('id')
     member_schedules = db(
         (db.group.id==group_id) &
         (db.group_member.member_id==db.user.id) &
         (db.group_member.group_id==db.group.id)
     ).select(db.user.id, db.user.first_name, db.user.last_name, db.user.schedule)
-    # print('[load_group]:', member_schedules)
     return dict(group_id=group_id, member_schedules=member_schedules.response)

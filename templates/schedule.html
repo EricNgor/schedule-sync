@@ -8,76 +8,70 @@
 
     <h1 class="title has-text-centered">[[=first]] [[=last]]'s Schedule</h1>
     <h6 class="title is-6 has-text-centered">[[=email]]</h6>
-
-        <button class="button is-danger" @click="schedule_clear">
-            <span class="icon"><i class="fa fa-trash"></i></span>
-            <span>Clear Schedule</span>
-        </button>
-        <button class="button is-success" @click="schedule_save" id="save_button">
-            <span class="icon"><i class="fa fa-save"></i></span>
-            <span>Save Schedule</span>
-        </button>
-
+        
         <br><br>
 
-        <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
-            <thead style="background: LightGrey">
-                <th style="width: 100px; font-size: 15px;">
-                    <label class="checkbox">
-                        <input type="checkbox" v-model="extended" @change="toggle_extended" />
-                        Extended Schedule
-                    </label>
-                </th>
-            [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
-                <th style="width: 150px">[[=day]]</th>
-            [[pass]]
-            </thead>
-
-            <tbody v-for="i in timeslots">
-                <tr v-if="i%2==0" class="row">
-                    <td class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
-                    [[for j in range(7):]]
-                        <td @mouseenter="schedule_enter(i, ([[=j]]), false)"
-                        @mousedown="schedule_enter(i, ([[=j]]), true)"
-                        :class="{
-                            'is-primary': cells[i][([[=j]])],
-                            'is-none': !cells[i][([[=j]])],
-                        }"
-                        class="schedule_cell"></td>
+        <div class="columns is-mobile is-centered">
+            <div class="column is-one-fifth has-text-centered item">
+                <button class="button is-danger" @click="schedule_clear">
+                    <span class="icon"><i class="fa fa-trash"></i></span>
+                    <span>Clear Schedule</span>
+                </button>
+                <button class="button is-danger is-bottom" @click="schedule_clear">
+                    <span class="icon"><i class="fa fa-trash"></i></span>
+                    <span>Clear Schedule</span>
+                </button>
+            </div>
+            <div class="column">
+                <table class="table is-striped is-hoverable has-text-centered is-narrow is-bordered" id="schedule">
+                    <thead style="background: LightGrey">
+                        <th style="width: 100px; font-size: 15px;">
+                            <label class="checkbox">
+                                <input type="checkbox" v-model="extended" @change="toggle_extended" />
+                                Extended Schedule
+                            </label>
+                        </th>
+                    [[for day in ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']:]]
+                        <th style="width: 150px">[[=day]]</th>
                     [[pass]]
-                </tr>
-                <tr v-if="i%2==1" class="row">
-                    <td></td>
-                    [[for j in range(7):]]
-                        <td @mouseenter="schedule_enter(i, ([[=j]]), false)"
-                        @mousedown="schedule_enter(i, ([[=j]]), true)"
-                        :class="{
-                            'is-primary': cells[i][([[=j]])],
-                            'is-none': !cells[i][([[=j]])],
-                        }"
-                        class="schedule_cell"></td>
-                    [[pass]]
-                </tr> 
-                    
-            </tbody>
-
-        </table>
+                    </thead>
+        
+                    <tbody v-for="i in timeslots">
+                        <tr class="row">
+                            <td v-if="i%2==0" class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
+                            <td v-else></td>
+                            [[for j in range(7):]]
+                                <td @mouseenter="schedule_enter(i, ([[=j]]), false)"
+                                @mousedown="schedule_enter(i, ([[=j]]), true)"
+                                :class="{
+                                    'is-primary': cells[i][([[=j]])],
+                                    'is-none': !cells[i][([[=j]])],
+                                }"
+                                class="schedule_cell"></td>
+                            [[pass]]
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="column is-one-fifth has-text-centered item">
+                <button class="button is-success" @click="schedule_save" id="save_button">
+                    <span class="icon"><i class="fa fa-save"></i></span>
+                    <span>Save Schedule</span>
+                </button>
+                <button class="button is-success" @click="schedule_save" id="save_button">
+                    <span class="icon"><i class="fa fa-save"></i></span>
+                    <span>Save Schedule</span>
+                </button>
+            </div>
+        </div>
 
         <br>
-
-        <button class="button is-danger" @click="schedule_clear">
-            <span class="icon"><i class="fa fa-trash"></i></span>
-            <span>Clear Schedule</span>
-        </button>
+        
         <a class="button has-text-centered" id="top_button" v-if="extended" 
             onClick="window.scroll({top: 0, left: 0, behavior: 'smooth'})">
             <span class="icon"><i class="fa fa-arrow-up"></i></span>
             <span>To Top</span>
         </a>
-        <button class="button is-success" @click="schedule_save" id="save_button">
-            <span class="icon"><i class="fa fa-save"></i></span>
-            <span>Save Schedule</span>
-        </button>
 
 </div>
 
