@@ -28,8 +28,8 @@ let init = (app) => {
         });
     };
 
-    app.group_url = function(id) {
-        return `/schedule/group/${id}`
+    app.group_url = function(path, id) {
+        return `${path}/${id}`
     }
 
     app.methods = {

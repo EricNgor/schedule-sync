@@ -32,7 +32,7 @@
          <div class="tile is-vertical is-4" id="group_col_0">
             <div class="tile is-parent">
                <a class="tile is-child notification is-link" 
-                  :href="group_url(r.id)"
+                  :href="group_url('[[=URL('group')]]', r.id)"
                   style="cursor: pointer;">
                   <p class="title">{{r.group_name}}</p>
                   <div class="content">
