@@ -9,7 +9,30 @@
     <h1 class="title has-text-centered">[[=first]] [[=last]]'s Schedule</h1>
     <h6 class="title is-6 has-text-centered">[[=email]]</h6>
         
-        <br><br>
+        <br>
+        <div class="container has-text-centered">
+            <span class="subtitle is-5">
+                Busy
+                <a @click="select_busy" class="icon">
+                    <i class="fa" :class="{
+                        'fa-check-square': displayMode==-1,
+                        'fa-square': displayMode==1
+                    }"></i>
+                </a>
+            </span>
+    
+            <span class="subtitle is-5">
+                Free
+                <a @click="select_free" class="icon">
+                    <i class="fa" :class="{
+                        'fa-check-square': displayMode==1,
+                        'fa-square': displayMode==-1
+                    }"></i>
+                </a>
+            </span>
+        </div>
+
+        <br>
 
         <div class="columns is-mobile is-centered">
             <div class="column is-one-fifth has-text-centered item">

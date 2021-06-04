@@ -9,6 +9,8 @@ let init = app => {
         adding: false,
         deleting: false,
         cells: [],
+        // -1: busy; 1: free
+        displayMode: -1
     };
 
     /**
@@ -19,6 +21,18 @@ let init = app => {
                             [...Array(48).keys()] :
                             ([...Array(28).keys()].map(i=>i+16));
     };
+
+    app.select_busy = function() {
+        if (app.vue.displayMode == -1) return;
+        app.vue.cells = app.vue.cells.map(r=>r.map(c=>c=!c));
+        app.vue.displayMode*=-1;
+    };
+
+    app.select_free = function() {
+        if (app.vue.displayMode == 1) return;
+        app.vue.cells = app.vue.cells.map(r=>r.map(c=>c=!c));
+        app.vue.displayMode*=-1;
+    }
 
     /**
      * Called when mouse enters a table cell
@@ -68,7 +82,8 @@ let init = app => {
         for (col=0; col<days.length; ++col) {
             nonsparse.push([]);
             for (row=0; row<ROW_CNT; ++row) {
-                if (app.vue.cells[row][col]) {
+                if ((!app.vue.cells[row][col] && app.vue.displayMode==-1) ||
+                     (app.vue.cells[row][col] && app.vue.displayMode== 1)) {
                     nonsparse[col].push(row);
                 }
             }
@@ -94,6 +109,8 @@ let init = app => {
 
     app.methods = {
         toggle_extended: app.toggle_extended,
+        select_busy: app.select_busy,
+        select_free: app.select_free,
         schedule_enter: app.schedule_enter,
         schedule_add: app.schedule_add,
         schedule_delete: app.schedule_delete,
@@ -130,7 +147,7 @@ let init = app => {
 
         // Load cells
         // https://stackoverflow.com/questions/3689903/how-to-create-a-2d-array-of-zeroes-in-javascript
-        app.vue.cells = Array(48).fill().map(() => Array(7).fill(false));
+        app.vue.cells = Array(48).fill().map(() => Array(7).fill(true));
 
         // Load schedule
         axios.get(load_schedule_url).then(function(res) {
@@ -142,7 +159,7 @@ let init = app => {
                 for (let [day, times] of Object.entries(schedule)) {
                     let day_idx = days.findIndex(d => d==day);
                     for (let time of times) {
-                        Vue.set(app.vue.cells[time], day_idx, true);
+                        Vue.set(app.vue.cells[time], day_idx, false);
                     }
                 }
             }

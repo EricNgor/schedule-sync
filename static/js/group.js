@@ -42,36 +42,60 @@ let init = app => {
      * Toggle a member's inclusion into the current group view
      */
     app.toggle_member = function(member) {
-        const ROW_CNT = 48;
         if (member.included) {
-            for (let col=0; col < 7; ++col) {
-                for (let row=0; row < ROW_CNT; ++row) {
-                    if (app.vue.cells[row][col].length==0) continue;
-                    Vue.set(
-                        app.vue.cells[row], 
-                        col, 
-                        app.vue.cells[row][col].filter(e=>e != member.id)
-                    )
-                }
-            }
-            member.included = false;
+            app.exclude_member(member);
         } else {
-            let schedule = app.vue.schedules.find(e=>e.member_id==member.id).schedule;
-            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            for (let [day, times] of Object.entries(schedule)) {
-                let day_idx = days.findIndex(d => d==day);
-                for (let time of times) {
-                    Vue.set(app.vue.cells[time], day_idx, [...app.vue.cells[time][day_idx], member.id]);
-                }
-            }
-            member.included = true;
+            app.include_member(member);
         }
-    }
+    };
+
+    app.include_member = function(member) {
+        let schedule = app.vue.schedules.find(e=>e.member_id==member.id).schedule;
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        for (let [day, times] of Object.entries(schedule)) {
+            let day_idx = days.findIndex(d => d==day);
+            for (let time of times) {
+                Vue.set(app.vue.cells[time], day_idx, [...app.vue.cells[time][day_idx], member.id]);
+            }
+        }
+        member.included = true;
+    };
+
+    app.exclude_member = function(member) {
+        const ROW_CNT = 48;
+        for (let col=0; col < 7; ++col) {
+            for (let row=0; row < ROW_CNT; ++row) {
+                if (app.vue.cells[row][col].length==0) continue;
+                Vue.set(
+                    app.vue.cells[row], 
+                    col, 
+                    app.vue.cells[row][col].filter(e=>e != member.id)
+                )
+            }
+        }
+        member.included = false;
+    };
+
+    app.include_all = function() {
+        for (let member of app.vue.members) {
+            if (!member.included) app.include_member(member);
+        }
+    };
+
+    app.exclude_all = function() {
+        for (let member of app.vue.members) {
+            if (member.included) app.exclude_member(member);
+        }
+    };
 
     app.methods = {
         toggle_extended: app.toggle_extended,
         count_overlap: app.count_overlap,
-        toggle_member: app.toggle_member
+        toggle_member: app.toggle_member,
+        include_member: app.include_member,
+        exclude_member: app.exclude_member,
+        include_all: app.include_all,
+        exclude_all: app.exclude_all,
     };
 
     app.vue = new Vue({

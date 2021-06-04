@@ -6,17 +6,30 @@
         <span>Home</span>
     </a>
     <h1 class="title has-text-centered">[[=group_name]]</h1>
+    <h2 class="subtitle has-text-centered">Overlapping free times</h2>
     <br>
     <div class="columns is-mobile is-centered">
         <div class="column is-one-fifth has-text-centered">
+            <a @click="include_all" class="button is-success">
+                <span class="icon"><i class="fa fa-check-square"></i></span>
+                <span>Include All</span>
+            </a>
+            <a @click="exclude_all" class="button is-danger">
+                <span class="icon"><i class="fa fa-window-close"></i></span>
+                <span>Exclude All</span>
+            </a>
+            <br><br>
+
             <h1 class="title"><u>Members</u></h1>
             <div v-for="m in members">
-                <!-- Maybe implement clicking on names to visit their profile -->
-                <h2 class="subtitle has-text-center">
+                <h2 class="subtitle has-text-center is-4">
                     {{m.first_name}} {{m.last_name}}
-                    <span @change="toggle_member(m)" class="checkbox" style="float: right">
-                        <input type="checkbox" checked />
-                    </span>
+                    <a @click="toggle_member(m)" class="icon" style="float: right">
+                        <i class="fa" :class="{
+                            'fa-check-square': m.included,
+                            'fa-square': !m.included
+                        }"></i>
+                    </a>
                 </h2>
                 <br>
             </div>
