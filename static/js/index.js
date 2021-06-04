@@ -1,4 +1,5 @@
 let app = {};
+
 let init = (app) => {
     app.data = {
         group_name: "",
@@ -27,10 +28,13 @@ let init = (app) => {
         });
     };
 
+    app.group_url = function(id) {
+        return `/schedule/group/${id}`
+    }
 
     app.methods = {
-        load_groups: app.load_groups
-
+        load_groups: app.load_groups,
+        group_url: app.group_url
     }
 
     app.vue = new Vue({

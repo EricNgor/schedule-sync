@@ -150,7 +150,6 @@ def load_groups():
         (db.group.id==db.group_member.group_id) &
         (db.group_member.member_id==auth.current_user.get('id'))
     ).select().as_list()
-
     return dict(groups=groups)
 
 @action('load_schedule')
@@ -184,7 +183,8 @@ def group(group_id):
     group_name = group.group_name
     return dict(
         group_name=group_name,
-        url_signer=url_signer,
+        load_group_url = URL('load_group', group_id, signer=url_signer)
+        # url_signer=url_signer,
         # load_group_url = URL('load_group/<group_id:int>', signer=url_signer)
     )
 
