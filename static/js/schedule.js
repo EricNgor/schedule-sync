@@ -9,8 +9,10 @@ let init = app => {
         adding: false,
         deleting: false,
         cells: [],
-        // -1: busy; 1: free
-        displayMode: -1
+        // 1: free; -1: busy
+        displayMode: 1,
+        saved: null,
+        clear_prompt: false
     };
 
     /**
@@ -32,6 +34,11 @@ let init = app => {
         if (app.vue.displayMode == 1) return;
         app.vue.cells = app.vue.cells.map(r=>r.map(c=>c=!c));
         app.vue.displayMode*=-1;
+    }
+
+    app.set_clear_prompt = function(val) {
+        // console.log('clear_prompt set to:', app.vue.clear_prompt);
+        app.vue.clear_prompt = val;
     }
 
     /**
@@ -61,19 +68,25 @@ let init = app => {
     // dragging mouse to other selected cells deselects them
     app.schedule_add = function(row, col) {
         Vue.set(app.vue.cells[row], col, true);
+        app.vue.saved = false;
     };
 
     app.schedule_delete = function(row, col) {
         Vue.set(app.vue.cells[row], col, false);
+        app.vue.saved = false;
     };
 
     app.schedule_clear = function() {
         axios.get(clear_schedule_url).then(function(res) {
             app.vue.cells = Array(48).fill().map(() => Array(7).fill(false));
         });
+        app.vue.clear_prompt = false;
     };
 
     app.schedule_save = function() {
+        // Skip if already saved without any other changes
+        if (app.vue.saved) return;
+
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         const ROW_CNT = 48;
 
@@ -102,15 +115,15 @@ let init = app => {
         axios.post(save_schedule_url, {
             schedule: json
         }).then(function(res) {
-            alert('Schedule saved!')
+            app.vue.saved = true;
         })
-    
     };
 
     app.methods = {
         toggle_extended: app.toggle_extended,
         select_busy: app.select_busy,
         select_free: app.select_free,
+        set_clear_prompt: app.set_clear_prompt,
         schedule_enter: app.schedule_enter,
         schedule_add: app.schedule_add,
         schedule_delete: app.schedule_delete,
@@ -147,7 +160,7 @@ let init = app => {
 
         // Load cells
         // https://stackoverflow.com/questions/3689903/how-to-create-a-2d-array-of-zeroes-in-javascript
-        app.vue.cells = Array(48).fill().map(() => Array(7).fill(true));
+        app.vue.cells = Array(48).fill().map(() => Array(7).fill(false));
 
         // Load schedule
         axios.get(load_schedule_url).then(function(res) {
@@ -159,7 +172,7 @@ let init = app => {
                 for (let [day, times] of Object.entries(schedule)) {
                     let day_idx = days.findIndex(d => d==day);
                     for (let time of times) {
-                        Vue.set(app.vue.cells[time], day_idx, false);
+                        Vue.set(app.vue.cells[time], day_idx, true);
                     }
                 }
             }
