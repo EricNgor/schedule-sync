@@ -11,7 +11,7 @@ let init = app => {
         cells: [],
         // 1: free; -1: busy
         displayMode: 1,
-        saved: null,
+        saved: false,
         clear_prompt: false
     };
 
@@ -37,7 +37,6 @@ let init = app => {
     }
 
     app.set_clear_prompt = function(val) {
-        // console.log('clear_prompt set to:', app.vue.clear_prompt);
         app.vue.clear_prompt = val;
     }
 

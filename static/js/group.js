@@ -10,6 +10,7 @@ let init = app => {
         // {id, first_name, last_name, included}
         members: [],
         cells: [],
+        leave_prompt: false
     };
 
     /**
@@ -88,6 +89,19 @@ let init = app => {
         }
     };
 
+    app.leave_group = function(user_id, index) {
+        console.log(`user ${user_id} is now leaving the group`);
+        axios.get(leave_group_url).then(function(res) {
+            // Redirect to index here since redirect() in controllers.py
+            // won't work in this case
+            window.location.replace(index)
+        })
+    }
+
+    app.set_leave_prompt = function(val) {
+        app.vue.leave_prompt = val;
+    }
+
     app.methods = {
         toggle_extended: app.toggle_extended,
         count_overlap: app.count_overlap,
@@ -96,6 +110,8 @@ let init = app => {
         exclude_member: app.exclude_member,
         include_all: app.include_all,
         exclude_all: app.exclude_all,
+        leave_group: app.leave_group,
+        set_leave_prompt: app.set_leave_prompt
     };
 
     app.vue = new Vue({

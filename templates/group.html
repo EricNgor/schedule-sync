@@ -7,8 +7,8 @@
         <span>Home</span>
     </a>
     <h1 class="title has-text-centered">[[=group_name]]</h1>
-    <h2 class="subtitle has-text-centered">Overlapping free times</h2>
     <br>
+    <h2 class="subtitle has-text-centered">Group Availability</h2>
     <div class="columns is-mobile is-centered">
         <div class="column is-one-fifth has-text-centered">
             <a @click="include_all" class="button is-success">
@@ -33,6 +33,24 @@
                     </a>
                 </h2>
                 <br>
+            </div>
+            <br><br><br>
+            <a @click="set_leave_prompt(true)" class="button is-danger">
+                <span class="icon"><i class="fa fa-sign-out fa-flip-horizontal"></i></span>
+                <span>Leave Group</span>
+            </a>
+
+            <br><br>
+            <div v-if="leave_prompt">
+                <h2 class="subtitle">Are you sure you want to leave this group?</h2>
+                <a @click="leave_group( [[=user_in_group]], '[[=URL('index')]]' )" class="button is-success">
+                    <span class="icon"><i class="fa fa-check"></i></span>
+                    <span>Leave</span>
+                </a>
+                <a @click="set_leave_prompt(false)" class="button is-danger">
+                    <span class="icon"><i class="fa fa-times"></i></span>
+                    <span>Cancel</span>
+                </a>
             </div>
         </div>
         <div class="column">
@@ -69,7 +87,7 @@
                     <input class="input is-hovered" type="text" id="join_code" value="[[=join_code]]" readonly />
                 </p>
                 <p class="control">
-                    <a class="button" onClick="copy_join_code('[[=join_code]]');" >
+                    <a class="button" onClick="copy_join_code('[[=join_code]]');" style="width: 120px">
                         <span class="icon"><i class="fa fa-clipboard"></i></span>
                         <span id="btn_copy_text">Copy</span>
                     </a>
@@ -104,6 +122,7 @@
 [[block page_scripts]]
 <script>
     let load_group_url = "[[=XML(load_group_url)]]";
+    let leave_group_url = "[[=XML(leave_group_url)]]";
     const copy_join_code = () => {
         document.getElementById('join_code').select();
         document.execCommand('copy');

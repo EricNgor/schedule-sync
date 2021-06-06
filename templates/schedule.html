@@ -32,25 +32,24 @@
         </div>
 
         <br>
-
         <div class="columns is-mobile is-centered">
             <div class="column is-one-fifth has-text-centered">
-                <button @click="set_clear_prompt(true)" class="button is-danger">
+                <a @click="set_clear_prompt(true)" class="button is-danger">
                     <span class="icon"><i class="fa fa-trash"></i></span>
                     <span>Clear Schedule</span>
-                </button>
+                </a>
 
                 <br><br>
                 <div v-if="clear_prompt">
                     <h2 class="subtitle">Are you sure you want to clear your schedule?</h2>
-                    <button @click="schedule_clear" class="button is-primary">
+                    <a @click="schedule_clear" class="button is-primary">
                         <span class="icon"><i class="fa fa-check"></i></span>
                         <span>Clear</span>
-                    </button>
-                    <button @click="set_clear_prompt(false)" class="button is-danger">
+                    </a>
+                    <a @click="set_clear_prompt(false)" class="button is-danger">
                         <span class="icon"><i class="fa fa-times"></i></span>
                         <span>Cancel</span>
-                    </button>
+                    </a>
                 </div>
             </div>
             <div class="column">
@@ -85,10 +84,10 @@
                 </table>
             </div>
             <div class="column is-one-fifth has-text-centered">
-                <button class="button is-success" @click="schedule_save">
+                <a class="button is-success" @click="schedule_save">
                     <span class="icon"><i class="fa fa-save"></i></span>
                     <span>Save Schedule</span>
-                </button>
+                </a>
                 <br><br>
                 <h2 v-if="saved" class="subtitle has-text-success fade-out">
                     Schedule Saved!

@@ -76,11 +76,19 @@ def create_group():
     if form.accepted:
         group_name = form.vars['group_name']
         user_id=auth.current_user.get('id')
+
+        # Just in case a duplicate code is created (1 / 62^10)
+        while True:
+            join_code = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            code_exists = db(db.group.join_code==join_code).select().first()
+            if not code_exists:
+                break
+
         # Create group, add user to group, and assign user as owner
         db.group.insert(
             group_name=group_name,
             owner_id=user_id,
-            join_code=''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            join_code=join_code
         )
         group_id = db._adapter.lastrowid('group')
 
@@ -89,7 +97,7 @@ def create_group():
             group_id=group_id
         )
 
-        redirect(URL('index'))
+        redirect(URL('group', group_id))
 
     return dict(form=form)
 
@@ -181,23 +189,30 @@ def group(group_id):
     user_in_group = db(
         (db.group_member.group_id==group_id) &
         (db.group_member.member_id==user_id) 
-    ).select().first()
-    join_code = db(db.group.id==group_id).select(db.group.join_code).first().join_code
+    ).select(db.group_member.member_id).first()
 
+    if user_in_group is not None:
+        user_in_group = user_in_group.member_id
+    join_code = db(db.group.id==group_id).select(db.group.join_code).first()
+    if join_code is not None:
+        join_code = join_code.join_code
     group = db.group(group_id)
-    group_name = group.group_name
+    if group is not None:
+        group_name = group.group_name
+
     return dict(
         user_in_group=user_in_group,
         group_name=group_name,
         join_code=join_code,
-        load_group_url = URL('load_group', group_id, signer=url_signer)
-        # url_signer=url_signer,
-        # load_group_url = URL('load_group/<group_id:int>', signer=url_signer)
+        load_group_url = URL('load_group', group_id, signer=url_signer),
+        leave_group_url = URL('leave_group', group_id, user_id, signer=url_signer)
     )
 
+# Load group data to Vue
 @action('load_group/<group_id:int>')
 @action.uses(url_signer.verify(), db)
 def load_group(group_id):
+    assert group_id is not None
     # Return information in this group necessary to display common times
     member_schedules = db(
         (db.group.id==group_id) &
@@ -205,3 +220,18 @@ def load_group(group_id):
         (db.group_member.group_id==db.group.id)
     ).select(db.user.id, db.user.first_name, db.user.last_name, db.user.schedule)
     return dict(group_id=group_id, member_schedules=member_schedules.response)
+
+# Remove user from group
+# If that group becomes empty, remove group
+@action('leave_group/<group_id:int>/<user_id:int>')
+@action.uses(url_signer.verify(), db)
+def leave_group(group_id, user_id):
+    assert group_id is not None and user_id is not None
+    db(
+        (db.group_member.group_id==group_id) &
+        (db.group_member.member_id==user_id) 
+    ).delete()
+
+    members = db(db.group_member.group_id==group_id).select().first()
+    if members is None:
+        db(db.group.id==group_id).delete()
