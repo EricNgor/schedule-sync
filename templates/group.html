@@ -1,6 +1,7 @@
 [[extend 'layout.html']]
 
 <div class="section" id="vue-target" v-cloak>
+    [[if user_in_group:]]
     <a class="button" href="[[=URL('index')]]">
         <span class="icon"><i class="fa fa-home"></i></span>
         <span>Home</span>
@@ -59,8 +60,25 @@
                 </tbody>
             </table>
         </div>
-        <div class="column is-one-fifth">
+        <div class="column is-one-fifth has-text-centered">
+            <h1 class="title is-4">Invite Members</h1>
+            <br>
+            <h2 class="subtitle">Invite code</h2>
+            <div class="field has-addons" style="display: flex; justify-content: center">
+                <p class="control">
+                    <input class="input is-hovered" type="text" id="join_code" value="[[=join_code]]" readonly />
+                </p>
+                <p class="control">
+                    <a class="button" onClick="copy_join_code('[[=join_code]]');" >
+                        <span class="icon"><i class="fa fa-clipboard"></i></span>
+                        <span id="btn_copy_text">Copy</span>
+                    </a>
+                </p>
+            </div>
 
+            <br><br>
+            <h2 class="subtitle">Send invite</h2>
+            <input class="input" type="text" placeholder="slug@ucsc.edu" />
         </div>
     </div>
 
@@ -71,11 +89,26 @@
         <span class="icon"><i class="fa fa-arrow-up"></i></span>
         <span>To Top</span>
     </a>
+
+    [[else:]]
+    <div class="has-text-centered">
+        <h2 class="subtitle">You can't view a group that you aren't in!</h2>
+        <a class="button" href="[[=URL('index')]]">
+            <span class="icon"><i class="fa fa-home"></i></span>
+            <span>Home</span>
+        </a>
+    </div>
+    [[pass]]
 </div>
 
 [[block page_scripts]]
 <script>
     let load_group_url = "[[=XML(load_group_url)]]";
+    const copy_join_code = () => {
+        document.getElementById('join_code').select();
+        document.execCommand('copy');
+        document.getElementById('btn_copy_text').innerHTML = 'Copied!';
+    }
 </script>
 <script src="js/group.js"></script>
 [[end]]

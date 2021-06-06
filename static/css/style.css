@@ -30,3 +30,10 @@ html {
     75% {opacity: 1;}
     100% {opacity: 0;}
 }
+#join_code {
+    text-align: center;
+    color: white;
+}
+#join_code:hover {
+    color: black;
+}

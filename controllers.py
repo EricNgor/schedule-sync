@@ -176,13 +176,20 @@ def save_schedule():
 @action.uses(db, session, auth.user, 'group.html')
 def group(group_id):
     assert group_id is not None
-    # TODO:
-    # make sure you can only view this group if you are in it
+    user_id = auth.current_user.get('id')
+    # None if user is not in group
+    user_in_group = db(
+        (db.group_member.group_id==group_id) &
+        (db.group_member.member_id==user_id) 
+    ).select().first()
+    join_code = db(db.group.id==group_id).select(db.group.join_code).first().join_code
 
     group = db.group(group_id)
     group_name = group.group_name
     return dict(
+        user_in_group=user_in_group,
         group_name=group_name,
+        join_code=join_code,
         load_group_url = URL('load_group', group_id, signer=url_signer)
         # url_signer=url_signer,
         # load_group_url = URL('load_group/<group_id:int>', signer=url_signer)
