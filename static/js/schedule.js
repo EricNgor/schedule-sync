@@ -24,14 +24,11 @@ let init = app => {
                             ([...Array(28).keys()].map(i=>i+16));
     };
 
-    app.select_busy = function() {
-        if (app.vue.displayMode == -1) return;
-        app.vue.cells = app.vue.cells.map(r=>r.map(c=>c=!c));
-        app.vue.displayMode*=-1;
-    };
-
-    app.select_free = function() {
-        if (app.vue.displayMode == 1) return;
+    /**
+     * Change displayMode to selected mode, then flip cell values
+     */
+    app.select_mode = function(mode) {
+        if (app.vue.displayMode == mode) return;
         app.vue.cells = app.vue.cells.map(r=>r.map(c=>c=!c));
         app.vue.displayMode*=-1;
     }
@@ -43,6 +40,8 @@ let init = app => {
     /**
      * Called when mouse enters a table cell
      * Decides if schedule should be added or deleted
+     * If click was started in empty cell, drag to add cells
+     * If click was started in filled cell, drag to clear cells
      */
     app.schedule_enter = function(row, col, click) {
         if (app.vue.mousedown==0 || click) {
@@ -52,27 +51,14 @@ let init = app => {
                 else app.vue.deleting=true;
             }
             if (app.vue.adding) {
-                app.schedule_add(row, col);
+                Vue.set(app.vue.cells[row], col, true);
             }
             if (app.vue.deleting) {
-                app.schedule_delete(row, col);
+                Vue.set(app.vue.cells[row], col, false);
             }
+            app.vue.saved = false;
         } 
 
-    };
-
-    // If click was started in empty cell, 
-    // dragging mouse to other empty cells selects them
-    // Else if click was started in selected cell, 
-    // dragging mouse to other selected cells deselects them
-    app.schedule_add = function(row, col) {
-        Vue.set(app.vue.cells[row], col, true);
-        app.vue.saved = false;
-    };
-
-    app.schedule_delete = function(row, col) {
-        Vue.set(app.vue.cells[row], col, false);
-        app.vue.saved = false;
     };
 
     app.schedule_clear = function() {
@@ -101,7 +87,7 @@ let init = app => {
             }
         }
         
-        // Fill json with data
+        // Fill json with nonsparse data
         let json = {};
         for (day=0; day<days.length; ++day) {
             if (nonsparse[day].length > 0) {
@@ -111,21 +97,19 @@ let init = app => {
                 }
             }
         }   
+
         axios.post(save_schedule_url, {
             schedule: json
         }).then(function(res) {
             app.vue.saved = true;
-        })
+        });
     };
 
     app.methods = {
         toggle_extended: app.toggle_extended,
-        select_busy: app.select_busy,
-        select_free: app.select_free,
+        select_mode: app.select_mode,
         set_clear_prompt: app.set_clear_prompt,
         schedule_enter: app.schedule_enter,
-        schedule_add: app.schedule_add,
-        schedule_delete: app.schedule_delete,
         schedule_clear: app.schedule_clear,
         schedule_save: app.schedule_save,
     };
@@ -154,7 +138,7 @@ let init = app => {
             app.vue.deleting = false;
         });
 
-        // range(8, 21); loads times on left
+        // range(8, 21); Loads times on left
         app.vue.timeslots = ([...Array(28).keys()].map(i=>i+16));
 
         // Load cells
@@ -166,8 +150,9 @@ let init = app => {
             let schedule = res.data.schedule.replace(/'/g, '"');
             if (schedule.length > 0) {
                 schedule = JSON.parse(schedule);
-    
                 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+                // Determine schedule from JSON
                 for (let [day, times] of Object.entries(schedule)) {
                     let day_idx = days.findIndex(d => d==day);
                     for (let time of times) {

@@ -13,7 +13,7 @@
         <div class="container has-text-centered">
             <span class="subtitle is-5">
                 Free
-                <a @click="select_free" class="icon">
+                <a @click="select_mode(1)" class="icon">
                     <i class="fa" :class="{
                         'fa-check-square': displayMode==1,
                         'fa-square': displayMode==-1
@@ -22,7 +22,7 @@
             </span>
             <span class="subtitle is-5">
                 Busy
-                <a @click="select_busy" class="icon">
+                <a @click="select_mode(-1)" class="icon">
                     <i class="fa" :class="{
                         'fa-check-square': displayMode==-1,
                         'fa-square': displayMode==1

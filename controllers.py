@@ -60,15 +60,10 @@ def index():
         user=user,
         load_groups_url = URL('load_groups', signer=url_signer),
     )
-        
 
 @action('create_group', method=["GET", "POST"])
 @action.uses(db, session, auth.user, 'create_group.html')
 def create_group():
-    # Generate a 10-character alphanumeric string
-    # https://stackoverflow.com/questions/2511222/efficiently-generate-a-16-character-alphanumeric-string
-    # code = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
-
     form = Form(
         [Field('group_name', requires=IS_NOT_EMPTY(error_message='Enter a group name'))],
         csrf_session=session, formstyle=FormStyleBulma, submit_value='Create Group')
@@ -79,6 +74,8 @@ def create_group():
 
         # Just in case a duplicate code is created (1 / 62^10)
         while True:
+            # Generate a 10-character alphanumeric string
+            # https://stackoverflow.com/questions/2511222/efficiently-generate-a-16-character-alphanumeric-string
             join_code = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
             code_exists = db(db.group.join_code==join_code).select().first()
             if not code_exists:
@@ -111,17 +108,16 @@ def join_group():
     if form.accepted:
         group = db(db.group.join_code==form.vars['invite_code']).select().first()
         if group:
-            # check if user is already in group
+            # Check if user is already in group
             user_id = auth.current_user.get('id')
             if db(
                 (db.group_member.member_id==user_id) &
                 (db.group_member.group_id==group.id)
             ).select():
-
                 form.accepted = False
                 form.errors['invite_code'] = "You're already in this group!"
                 return dict(form=form)
-            # else add to member list and add to user's groups
+            # Else add to member list and add to user's groups
             else:
                 db.group_member.insert(
                     member_id=user_id,
@@ -180,6 +176,7 @@ def save_schedule():
     db(db.user.id==id).update(schedule=schedule)
     return dict(id=id)
 
+# Group page
 @action('group/<group_id:int>')
 @action.uses(db, session, auth.user, 'group.html')
 def group(group_id):

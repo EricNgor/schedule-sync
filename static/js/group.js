@@ -34,7 +34,7 @@ let init = app => {
 
         const overlap_perc = cnt_overlap / cnt_members;
 
-        if (overlap_perc == 1) return 'is-success';
+        if (overlap_perc >= 1) return 'is-success';
         if (overlap_perc >= 0.5) return 'is-warning';
         return 'is-danger';
     }
@@ -50,6 +50,9 @@ let init = app => {
         }
     };
 
+    /**
+     * Include member's schedule
+     */
     app.include_member = function(member) {
         let schedule = app.vue.schedules.find(e=>e.member_id==member.id).schedule;
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -62,6 +65,9 @@ let init = app => {
         member.included = true;
     };
 
+    /**
+     * Exclude member's schedule
+     */
     app.exclude_member = function(member) {
         const ROW_CNT = 48;
         for (let col=0; col < 7; ++col) {
@@ -131,6 +137,7 @@ let init = app => {
         axios.get(load_group_url).then(function(res) {
             app.vue.id = res.data.group_id;
             for (let member of res.data.member_schedules) {
+                // member: [id, first_name, last_name, schedule]
                 app.vue.members.push({
                     id: member[0], 
                     first_name: member[1], 
@@ -142,6 +149,8 @@ let init = app => {
                 if (schedule.length > 0) {
                     schedule = JSON.parse(schedule.replace(/'/g, '"'));
                     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    
+                    // Determine schedule from JSON
                     for (let [day, times] of Object.entries(schedule)) {
                         let day_idx = days.findIndex(d => d==day);
                         for (let time of times) {
