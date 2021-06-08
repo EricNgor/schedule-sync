@@ -154,6 +154,7 @@ def load_groups():
         (db.group.id==db.group_member.group_id) &
         (db.group_member.member_id==auth.current_user.get('id'))
     ).select().as_list()
+
     return dict(groups=groups)
 
 @action('load_schedule')

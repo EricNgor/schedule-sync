@@ -46,9 +46,12 @@ let init = (app) => {
     app.init = () => {
         axios.get(load_groups_url).then(function(res) {
             for (let group of res.data.groups) {
-                app.vue.groups.push(group.group)
+                app.vue.groups.unshift(group.group)
             }
-        }).catch((err) => {console.log('Error loading groups:', err)})
+            app.enumerate(app.vue.groups);
+        }).catch((err) => {console.log('Error loading groups:', err)});
+        
+        console.log('groups:', app.vue.groups);
     };
 
     app.init();

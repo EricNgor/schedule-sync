@@ -26,23 +26,55 @@
       </a>
    </div>
    <br><br><br>
-   <!-- Later, these tiles will be added automatically upon group creation -->
-   <div v-for=" r in groups.slice().reverse()" class="column">
-      <div class="tile is-ancestor mx-6" id="group_tiles">
-         <div class="tile is-vertical is-4" id="group_col_0">
-            <div class="tile is-parent">
-               <a class="tile is-child notification is-link" 
-                  :href="group_url('[[=URL('group')]]', r.id)"
-                  style="cursor: pointer;">
-                  <p class="title">{{r.group_name}}</p>
-                  <div class="content">
-                     Join Code: {{r.join_code}}
+   <div class="columns is-mobile is-centered">
+         <div class="tile is-ancestor mx-6">
+         <div class="column is-one-third">
+            <div class="tile is-vertical">
+               <div v-for="g in groups">
+                  <div v-if="g._idx%3==0">
+                     <div class="tile is-parent">
+                        <a class="tile is-child notification is-link"
+                           :href="group_url('[[=URL('group')]]', g.id)"
+                           style="cursor:pointer;">
+                           <p class="title">{{g.group_name}}</p>
+                        </a>
+                     </div>
                   </div>
-               </a>
+               </div>
             </div>
          </div>
+         <div class="column is-one-third">
+            <div class="tile is-vertical">
+               <div v-for="g in groups">
+                  <div v-if="g._idx%3==1">
+                     <div class="tile is-parent">
+                        <a class="tile is-child notification is-link"
+                           :href="group_url('[[=URL('group')]]', g.id)"
+                           style="cursor:pointer;">
+                           <p class="title">{{g.group_name}}</p>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="column is-one-third">
+            <div class="tile is-vertical">
+               <div v-for="g in groups">
+                  <div v-if="g._idx%3==2">
+                     <div class="tile is-parent">
+                        <a class="tile is-child notification is-link"
+                           :href="group_url('[[=URL('group')]]', g.id)"
+                           style="cursor:pointer;">
+                           <p class="title">{{g.group_name}}</p>
+                        </a>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div>
+         </div>
       </div>
-   </div>
 
    [[pass]]
 
