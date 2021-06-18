@@ -17,7 +17,7 @@ This makes it much easier for users who are free more often than they are busy, 
 Busy and free times always mirror each other, so if the user wants to start off with a filled table, they can use the clear button from the opposite display mode. \
 The user can save their schedule by clicking on the 'Save Schedule' button. \
 The schedule is only saved if there have been changes between button presses, in which case the text 'Schedule 
-Saved!' will briefly appear. \
+Saved!' will briefly appear.
 
 ## Group Creation and Joining
 Users can click on the 'Create Group' button from the homepage to create a group, where they will be prompted to input a group name. \
@@ -27,7 +27,7 @@ If the code is incorrect or the user is already in that group, the form will dis
 ## Group Page
 The group page displays the overlapping times that group members are free. \
 There are buttons to toggle a member's inclusion in the case that an arrangement is needed to be made with only a subset of the group members. \
-The color of each cell indicates the percentage of __included__ members that are free during the specified timeframe. This is decided by the following boundaries: \
+The color of each cell indicates the percentage of __included__ members that are free during the specified timeframe. This is decided by the following boundaries:
 
 | % of Members Free  | Color    |
 | ------------------ |:--------:|
@@ -42,3 +42,5 @@ The user may choose to leave the group by clicking the 'Leave Group' button. \
 In the case that the only person in group leaves, the group is then deleted. \
 If a user that is not part of a group tries to view a group's page, they will instead be shown a message telling them that they are allowed to view the page.
 
+# 
+**This app is currently not deployed, but is planned to be soon.**
