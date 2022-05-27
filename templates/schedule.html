@@ -68,7 +68,7 @@
         
                     <tbody v-for="i in timeslots">
                         <tr class="row">
-                            <td v-if="i%2==0" class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=24 ? ' AM' : ' PM')}}</td>
+                            <td v-if="i%2==0" class="timeslot">{{((i<=24&&i!=0) ? i/2 : Math.abs(i/2-12)) + (i<=22 ? ' AM' : ' PM')}}</td>
                             <td v-else></td>
                             [[for j in range(7):]]
                                 <td @mouseenter="schedule_enter(i, ([[=j]]), false)"
